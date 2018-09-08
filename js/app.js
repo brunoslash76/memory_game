@@ -1,7 +1,7 @@
 /*
  * Array of classes to be added to icons
  */
-let faClasses = [
+const faClasses = [
     'fa-diamond',
     'fa-paper-plane-o',
     'fa-anchor',
@@ -20,32 +20,22 @@ let faClasses = [
     'fa-cube'
 ];
 
-const deck = document.getElementsByClassName('deck')[0]
+const deck = document.getElementsByClassName('deck')[0];
 const reset = document.getElementsByClassName('restart')[0];
 const moves = document.getElementsByClassName('moves')[0];
+const gameOverDiv = document.getElementsByClassName('game-over')[0];
+const timerDiv = document.getElementsByClassName('timer')[0];
 
+let timer;
+let sec = 0;
+let minutes = 0;
+let timerOutput = '';
 const li = [];
-const icon = []
-const gridQtd = 16
+const icon = [];
+const gridQtd = 16;
 
-faClasses = shuffle(faClasses);
-
-for (let i = 0; i < gridQtd; i++) {
-    // create li 
-    li.push(document.createElement('LI'));
-    // create icon 
-    icon.push(document.createElement('I'))
-}
-
-for (let i = 0; i < gridQtd; i++) {
-    li[i].classList.add('card')
-    icon[i].classList.add(`fa`);
-    icon[i].classList.add(faClasses[i]);
-    li[i].appendChild(icon[i]);
-    deck.appendChild(li[i]);
-}
-
-
+createList();
+shufleCards();
 
 /* DONE
  * Display the cards on the page
@@ -53,7 +43,6 @@ for (let i = 0; i < gridQtd; i++) {
  *   - loop through each card and create its HTML - ok
  *   - add each card's HTML to the page - ok
  */
-
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
@@ -69,7 +58,6 @@ function shuffle(array) {
 
     return array;
 }
-
 
 /*
  * set up the event listener for a card. If a card is clicked:
@@ -87,10 +75,28 @@ let selectedCards = [];
 let totalClicks = 0;
 setMoves(0);
 
+firstReveal(deck);
 deck.addEventListener('click', function (event) {
 
+    // Check if the game is over
     if (endGame()) {
         return;
+    }
+
+    if (getMoves() === 0) {
+        startTimer();
+    }
+
+    // Verify if the event target is an LI 
+    if (event.target.tagName !== 'LI') {
+        return;
+    }
+
+    // Verify if the actual card has been clicked
+    for (let i = 0, len = selectedCards.length; i < len; i++) {
+        if (selectedCards[i] === event.target) {
+            return;
+        }
     }
 
     setMoves(++totalClicks);
@@ -102,8 +108,7 @@ deck.addEventListener('click', function (event) {
     }
 
     if (cardCounter === 2) {
-        if(cardsMatch(selectedCards)) {
-            console.log('yeah yeah')
+        if (cardsMatch(selectedCards)) {
             cardCounter = 0;
             selectedCards = [];
         }
@@ -121,9 +126,37 @@ reset.addEventListener('click', function () {
     setMoves(0);
 });
 
+gameOverDiv.addEventListener('click', function () {
+    gameOverDiv.classList.remove('show');
+    resetGame();
+});
+
 function showCard(card) {
     card.classList.add('show');
     card.classList.add('open');
+}
+
+function createList() {
+    for (let i = 0; i < gridQtd; i++) {
+        // create li 
+        li.push(document.createElement('LI'));
+        // create icon 
+        icon.push(document.createElement('I'))
+    }
+}
+
+function shufleCards() {
+    auxClasses = shuffle(faClasses);
+    for (let i = 0; i < gridQtd; i++) {
+        li[i].classList.add('card');
+
+        icon[i].classList.add(`fa`);
+
+        icon[i].classList.add(auxClasses[i]);
+
+        li[i].appendChild(icon[i]);
+        deck.appendChild(li[i]);
+    }
 }
 
 function hideCards(arrayCards) {
@@ -139,20 +172,28 @@ function hideCards(arrayCards) {
 }
 
 /**
- * 
  * @param {*} arrayCards array of 2 cards to compare
  * return boolean true or false
  */
+let matchesCounter = 0;
 function cardsMatch(arrayCards) {
     const cardOne = arrayCards[0]
     const cardTwo = arrayCards[1]
-    
+
     const cardOneClass = cardOne.firstElementChild.classList.value.substring(3);
     const cardTwoClass = cardTwo.firstElementChild.classList.value.substring(3);
-    
-    if (cardOneClass === cardTwoClass ) {
+
+    if (cardOneClass === cardTwoClass) {
+        matchesCounter++;
         cardOne.classList.add('match');
         cardTwo.classList.add('match');
+        cardOne.classList.remove('open')
+        cardTwo.classList.remove('open')
+        cardOne.classList.remove('show')
+        cardTwo.classList.remove('show')
+        if (matchesCounter === 8) {
+            endGame();
+        }
         return true;
     } else {
         return false
@@ -171,7 +212,26 @@ function getMoves() {
 function endGame() {
     if (getMoves() >= 16) {
         let allCards = document.getElementsByClassName('match');
+        const fragment = document.createDocumentFragment();
         if (allCards.length === 16) {
+
+            gameOverDiv.classList.add('show');
+
+            const div = document.createElement('DIV');
+            const timerDiv = document.createElement('DIV');
+
+            timerDiv.innerHTML = `Seu tempo foi ${timerOutput}`;
+            timerDiv.classList.add('game-over-msg');
+
+            div.appendChild(timerDiv);
+
+            div.innerHTML = `Você ganhow com ${getMoves()} movimentos, parabéns :)`;
+            div.classList.add('game-over-msg');
+
+            fragment.appendChild(div);
+            gameOverDiv.appendChild(fragment);
+
+            resetTimer();
             return true;
         } else {
             return false;
@@ -179,12 +239,64 @@ function endGame() {
     }
 }
 
+
 function resetGame() {
-    const matchedCards = document.getElementsByClassName('match');
-    console.log(document.getElementsByClassName('match'))
-    matchedCards.classList.remove('match');
+    
+    const cards = document.getElementsByClassName('card');
+
+    for (let i = 0, len = cards.length; i< len; i++) {
+        faClasses.forEach(res => {
+            if (cards[i].children[0].classList.value.substring(3) === res) {
+                cards[i].children[0].classList.remove(res)
+                cards[i].classList.remove('match')
+            }
+        })
+    }
+
+
+    setMoves(0);
+    selectedCards = [];
+    shufleCards();  
+}
+
+
+function startTimer() {
+    timer = setInterval(function () {
+        sec++;
+        if (sec >= 60) {
+            sec = 0;
+            minutes++;
+        }
+        if (sec < 10) {
+            timerOutput = `${minutes}m 0${sec}s`;
+        } else {
+            timerOutput = `${minutes}m ${sec}s`
+        }
+
+        timerDiv.innerHTML = timerOutput;
+        
+    }, 1000);
+
 }
 
 function resetTimer() {
+    sec = 0;
+    minutes = 0;
+    timerOutput = '0m 00s';
+    timerDiv.innerHTML = timerOutput;   
+    clearInterval(timer)
+}
 
+function firstReveal(deck) {
+    let cards = deck.children;
+    for (let i = 0 , len = cards.length; i < len; i++) {
+        cards[i].classList.add('open');
+        cards[i].classList.add('show');
+    }
+    setTimeout(function () {
+        for (let i = 0 , len = cards.length; i < len; i++) {
+            cards[i].classList.remove('open');
+            cards[i].classList.remove('show');
+        }
+    }, 3000);
 }
