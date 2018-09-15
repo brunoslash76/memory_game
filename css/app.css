@@ -124,6 +124,7 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-flow: column;
 }
 
 .game-over.show {
@@ -138,6 +139,35 @@ h1 {
     font-size: 30px;
     color: white;
     font-weight: bold;
+}
+.game-over-msg:nth-child(odd) {
+    margin: 40px;
+}
+.game-over-msg:last-child i {
+    margin-right: 10px;
+    font-size: 60px;
+    text-shadow: 0px 0px 8px yellow;
+}
+
+.game-over-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+}
+
+.btn-play {
+    padding: 20px 60px;
+    border: solid 2px white;
+    color: white;
+    font-size: 24px;
+    background-color: transparent;
+    transition: all .4s ease-in-out;
+}
+
+.btn-play:hover {
+    cursor: pointer;
+    background-color: rgba(50, 50, 50, .6);
 }
 
 /**

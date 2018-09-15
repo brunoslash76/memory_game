@@ -1,17 +1,10 @@
 /*
  * Array of classes to be added to icons
  */
-const faClasses = [
-    'fa-diamond',
-    'fa-paper-plane-o',
+
+let faClasses = [
     'fa-anchor',
-    'fa-bolt',
-    'fa-cube',
-    'fa-anchor',
-    'fa-leaf',
-    'fa-bicycle',
     'fa-diamond',
-    'fa-bomb',
     'fa-leaf',
     'fa-bomb',
     'fa-bolt',
@@ -19,20 +12,27 @@ const faClasses = [
     'fa-paper-plane-o',
     'fa-cube'
 ];
+faClasses = [...faClasses, ...faClasses];
 
 const deck = document.getElementsByClassName('deck')[0];
 const reset = document.getElementsByClassName('restart')[0];
 const moves = document.getElementsByClassName('moves')[0];
 const gameOverDiv = document.getElementsByClassName('game-over')[0];
 const timerDiv = document.getElementsByClassName('timer')[0];
+const stars = document.getElementsByClassName('stars')[0];
+
+const li = [];
+const icon = [];
+const gridQtd = 16;
 
 let timer;
 let sec = 0;
 let minutes = 0;
 let timerOutput = '';
-const li = [];
-const icon = [];
-const gridQtd = 16;
+let cardCounter = 0;
+let selectedCards = [];
+let totalClicks = 0;
+let estrelas = 0;
 
 createList();
 shufleCards();
@@ -70,9 +70,7 @@ function shuffle(array) {
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
 
-let cardCounter = 0;
-let selectedCards = [];
-let totalClicks = 0;
+
 setMoves(0);
 
 firstReveal(deck);
@@ -100,6 +98,7 @@ deck.addEventListener('click', function (event) {
     }
 
     setMoves(++totalClicks);
+    removeStars();
 
     if (cardCounter < 2) {
         showCard(event.target);
@@ -122,18 +121,10 @@ deck.addEventListener('click', function (event) {
 
 reset.addEventListener('click', function () {
     resetGame();
-    resetTimer();
-    setMoves(0);
-});
-
-gameOverDiv.addEventListener('click', function () {
-    gameOverDiv.classList.remove('show');
-    resetGame();
 });
 
 function showCard(card) {
-    card.classList.add('show');
-    card.classList.add('open');
+    card.classList.add('show', 'open');
 }
 
 function createList() {
@@ -148,12 +139,9 @@ function createList() {
 function shufleCards() {
     auxClasses = shuffle(faClasses);
     for (let i = 0; i < gridQtd; i++) {
+
         li[i].classList.add('card');
-
-        icon[i].classList.add(`fa`);
-
-        icon[i].classList.add(auxClasses[i]);
-
+        icon[i].classList.add('fa', auxClasses[i]);
         li[i].appendChild(icon[i]);
         deck.appendChild(li[i]);
     }
@@ -163,10 +151,8 @@ function hideCards(arrayCards) {
     setTimeout(function () {
         const cardOne = arrayCards[0];
         const cardTwo = arrayCards[1];
-        cardOne.classList.remove('open');
-        cardOne.classList.remove('show');
-        cardTwo.classList.remove('open');
-        cardTwo.classList.remove('show');
+        cardOne.classList.remove('open', 'show');
+        cardTwo.classList.remove('open', 'show');
     }, 1000);
 
 }
@@ -187,10 +173,8 @@ function cardsMatch(arrayCards) {
         matchesCounter++;
         cardOne.classList.add('match');
         cardTwo.classList.add('match');
-        cardOne.classList.remove('open')
-        cardTwo.classList.remove('open')
-        cardOne.classList.remove('show')
-        cardTwo.classList.remove('show')
+        cardOne.classList.remove('open', 'show')
+        cardTwo.classList.remove('open', 'show')
         if (matchesCounter === 8) {
             endGame();
         }
@@ -210,41 +194,72 @@ function getMoves() {
 }
 
 function endGame() {
+    console.log('entrou end game')
     if (getMoves() >= 16) {
+        console.log('tem mais de 16 click')
         let allCards = document.getElementsByClassName('match');
-        const fragment = document.createDocumentFragment();
+        
         if (allCards.length === 16) {
-
-            gameOverDiv.classList.add('show');
-
+            
+            const fragment = document.createDocumentFragment();
+            const fragmentButton = document.createDocumentFragment();
             const div = document.createElement('DIV');
             const timerDiv = document.createElement('DIV');
+            const msgTempo = document.createElement('DIV');
+            const msgEstrelas = document.createElement('DIV');
+            const buttonContainer = document.createElement('DIV');
+            const button = document.createElement('BUTTON');
 
-            timerDiv.innerHTML = `Seu tempo foi ${timerOutput}`;
+            
+            for (let i = 0, len = getEstrelas(); i < len; i++) {
+                const star = document.createElement('I');
+                star.classList.add('fa', 'fa-star');
+                msgEstrelas.appendChild(star);
+            }
+            
+            msgEstrelas.classList.add('game-over-msg');
+            
             timerDiv.classList.add('game-over-msg');
-
+            timerDiv.innerHTML = `Seu tempo foi ${timerOutput}`;
+            
+            msgTempo.classList.add('game-over-msg');
+            msgTempo.innerHTML = `Você ganhow com ${getMoves()} movimentos, parabéns :)`;
+            
+            div.classList.add('game-over-container');
+            
+            button.addEventListener('click', btnPlayAgain);
+            button.innerText = 'Play';
+            button.classList.add('btn-play');
+            buttonContainer.classList.add('btn-container');
+            buttonContainer.appendChild(button);
+            
+            div.appendChild(msgTempo);
             div.appendChild(timerDiv);
+            div.appendChild(msgEstrelas);
 
-            div.innerHTML = `Você ganhow com ${getMoves()} movimentos, parabéns :)`;
-            div.classList.add('game-over-msg');
-
+            fragmentButton.appendChild(buttonContainer);
             fragment.appendChild(div);
             gameOverDiv.appendChild(fragment);
+            gameOverDiv.appendChild(fragmentButton);
+            gameOverDiv.classList.add('show');
 
+            setMoves(0);
             resetTimer();
+            resetStars();
             return true;
         } else {
             return false;
         }
+    } else {
+        return false;
     }
 }
 
-
 function resetGame() {
-    
+
     const cards = document.getElementsByClassName('card');
 
-    for (let i = 0, len = cards.length; i< len; i++) {
+    for (let i = 0, len = cards.length; i < len; i++) {
         faClasses.forEach(res => {
             if (cards[i].children[0].classList.value.substring(3) === res) {
                 cards[i].children[0].classList.remove(res)
@@ -256,9 +271,12 @@ function resetGame() {
 
     setMoves(0);
     selectedCards = [];
-    shufleCards();  
+    resetTimer();
+    resetStars();
+    createList();
+    shufleCards();
+    firstReveal(deck);
 }
-
 
 function startTimer() {
     timer = setInterval(function () {
@@ -274,7 +292,7 @@ function startTimer() {
         }
 
         timerDiv.innerHTML = timerOutput;
-        
+
     }, 1000);
 
 }
@@ -283,20 +301,54 @@ function resetTimer() {
     sec = 0;
     minutes = 0;
     timerOutput = '0m 00s';
-    timerDiv.innerHTML = timerOutput;   
+    timerDiv.innerHTML = timerOutput;
     clearInterval(timer)
 }
 
 function firstReveal(deck) {
     let cards = deck.children;
-    for (let i = 0 , len = cards.length; i < len; i++) {
-        cards[i].classList.add('open');
-        cards[i].classList.add('show');
+    for (let i = 0, len = cards.length; i < len; i++) {
+        cards[i].classList.add('open', 'show');
     }
     setTimeout(function () {
-        for (let i = 0 , len = cards.length; i < len; i++) {
-            cards[i].classList.remove('open');
-            cards[i].classList.remove('show');
+        for (let i = 0, len = cards.length; i < len; i++) {
+            cards[i].classList.remove('open', 'show');
         }
     }, 3000);
+}
+
+function removeStars() {
+    let lis = stars.children;
+
+    if (getMoves() === 17) {
+        lis[2].children[0].classList.remove('fa-star')
+        lis[2].children[0].classList.add('fa-star-o')
+        estrelas = 2;
+    } else if (getMoves() === 40) {
+        lis[1].children[0].classList.remove('fa-star')
+        lis[1].children[0].classList.add('fa-star-o')
+        estrelas = 1;
+    }
+}
+
+function resetStars() {
+    const totalEstrelas = 3;
+    for (let i = 0; i < totalEstrelas; i++) {
+        stars.children[i].children[0].classList.remove('fa-star-o');
+        stars.children[i].children[0].classList.add('fa-star');
+    }
+    estrelas = 3;
+}
+
+function getEstrelas() {
+    return estrelas;
+}
+
+function btnPlayAgain() {
+    const main = document.getElementsByClassName('container')[0];
+    main.removeChild(gameOverDiv);
+    resetGame();
+    resetTimer();
+    setMoves(0);
+    firstReveal(deck);
 }
