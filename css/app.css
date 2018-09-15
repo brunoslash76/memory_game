@@ -133,12 +133,33 @@ h1 {
     height: 100%;
     background-color: rgba(50, 50, 50, .6);
     top: 0;
+    
 }
 
 .game-over-msg {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    margin: 20px 0 145px 0;
     font-size: 30px;
     color: white;
     font-weight: bold;
+}
+
+.button-playagain{
+    background-color: rgba(5, 5, 5, 0.4);
+    content: 'Jogar Novamente';
+    font-size: 30px;
+    border: 2px solid white;
+    color: white;
+    padding: 20px 35px;
+    font-weight: bold;
+    transition: all .3s ease-in-out;
+}
+
+.button-playagain:hover{
+    cursor: pointer;
+    background-color: rgba(5, 5, 5, 0.6);
 }
 .game-over-msg:nth-child(odd) {
     margin: 40px;
