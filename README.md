@@ -1,20 +1,12 @@
 # Memory Game Project
 
-## Table of Contents
+## Instruções de Jogo
+Ao iniciar o jogo todas as cartas são reveladas para o jogador memoriza-las.
 
-* [Instructions](#instructions)
-* [Contributing](#contributing)
+A partir da primeira revelação da carta, o timer começa a cronometrar o tempo decorrido até a vitória.
 
-## Instructions
+Se completo o jogo em até 20 movimentos, o jogador ganha 3 estrelas, 40 movimentos 2 estrelas, acima disso o jogador ganha com apenas uma estrela.
 
-The starter project has some HTML and CSS styling to display a static version of the Memory Game project. You'll need to convert this project from a static project to an interactive one. This will require modifying the HTML and CSS files, but primarily the JavaScript file.
+Ao finalizar o jogo o jogador recebe as informações do jogo, quanto tempo decorreo, quantos movimentos, quantas estrelas ele ganhou e se o jogador quer jogar novamente.
 
-To get started, open `js/app.js` and start building out the app's functionality
 
-For specific, detailed instructions, look at the project instructions in the [Udacity Classroom](https://classroom.udacity.com/me).
-
-## Contributing
-
-This repository is the starter code for _all_ Udacity students. Therefore, we most likely will not accept pull requests.
-
-For details, check out [CONTRIBUTING.md](CONTRIBUTING.md).
