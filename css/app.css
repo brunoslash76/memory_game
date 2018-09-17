@@ -138,9 +138,9 @@ h1 {
 
 .game-over-msg {
     display: flex;
-    flex-flow: column;
+    /* flex-flow: column; */
     align-items: center;
-    margin: 20px 0 145px 0;
+    margin: 20px 0 60px 0;
     font-size: 30px;
     color: white;
     font-weight: bold;

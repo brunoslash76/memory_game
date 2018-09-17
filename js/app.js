@@ -17,7 +17,6 @@ faClasses = [...faClasses, ...faClasses];
 const deck = document.getElementsByClassName('deck')[0];
 const reset = document.getElementsByClassName('restart')[0];
 const moves = document.getElementsByClassName('moves')[0];
-const gameOverDiv = document.getElementsByClassName('game-over')[0];
 const timerDiv = document.getElementsByClassName('timer')[0];
 const stars = document.getElementsByClassName('stars')[0];
 
@@ -25,6 +24,7 @@ const li = [];
 const icon = [];
 const gridQtd = 16;
 
+let gameOverDiv = document.getElementsByClassName('game-over')[0];
 let timer;
 let sec = 0;
 let minutes = 0;
@@ -33,6 +33,7 @@ let cardCounter = 0;
 let selectedCards = [];
 let totalClicks = 0;
 let estrelas = 0;
+let matchesCounter = 0;
 
 createList();
 shufleCards();
@@ -201,13 +202,14 @@ function getMoves() {
 }
 
 function endGame() {
-    console.log('entrou end game')
     if (getMoves() >= 16) {
-        console.log('tem mais de 16 click')
         let allCards = document.getElementsByClassName('match');
-        
+
         if (allCards.length === 16) {
-            
+            if (!gameOverDiv) {
+                console.log('É isso')
+            }
+
             const fragment = document.createDocumentFragment();
             const fragmentButton = document.createDocumentFragment();
             const div = document.createElement('DIV');
@@ -217,42 +219,40 @@ function endGame() {
             const buttonContainer = document.createElement('DIV');
             const button = document.createElement('BUTTON');
 
-            
+
             for (let i = 0, len = getEstrelas(); i < len; i++) {
                 const star = document.createElement('I');
                 star.classList.add('fa', 'fa-star');
                 msgEstrelas.appendChild(star);
             }
-            
+
             msgEstrelas.classList.add('game-over-msg');
-            
+
             timerDiv.classList.add('game-over-msg');
             timerDiv.innerHTML = `Seu tempo foi ${timerOutput}`;
-            
+
             msgTempo.classList.add('game-over-msg');
             msgTempo.innerHTML = `Você ganhow com ${getMoves()} movimentos, parabéns :)`;
-            
+
             div.classList.add('game-over-container');
-            
+
             button.addEventListener('click', btnPlayAgain);
             button.innerText = 'Play';
             button.classList.add('btn-play');
-            buttonContainer.classList.add('btn-container');
-            buttonContainer.appendChild(button);
-            
+
+
             div.appendChild(msgTempo);
             div.appendChild(timerDiv);
             div.appendChild(msgEstrelas);
 
-            fragmentButton.appendChild(buttonContainer);
+            fragmentButton.appendChild(button);
             fragment.appendChild(div);
             gameOverDiv.appendChild(fragment);
             gameOverDiv.appendChild(fragmentButton);
             gameOverDiv.classList.add('show');
 
-            setMoves(0);
-            resetTimer();
-            resetStars();
+            resetAttr()
+
             return true;
         } else {
             return false;
@@ -263,6 +263,11 @@ function endGame() {
 }
 
 function resetGame() {
+    resetAttr()
+    firstReveal(deck);
+}
+
+function resetAttr() {
 
     const cards = document.getElementsByClassName('card');
 
@@ -275,14 +280,13 @@ function resetGame() {
         })
     }
 
-
     setMoves(0);
     selectedCards = [];
+    matchesCounter = 0;
     resetTimer();
     resetStars();
     createList();
     shufleCards();
-    firstReveal(deck);
 }
 
 function startTimer() {
@@ -352,10 +356,12 @@ function getEstrelas() {
 }
 
 function btnPlayAgain() {
+    
     const main = document.getElementsByClassName('container')[0];
     main.removeChild(gameOverDiv);
-    resetGame();
-    resetTimer();
-    setMoves(0);
+    resetAttr();
     firstReveal(deck);
+    gameOverDiv = document.createElement('DIV');
+    gameOverDiv.classList.add('game-over');
+    main.appendChild(gameOverDiv);
 }
