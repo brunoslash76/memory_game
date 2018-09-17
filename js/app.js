@@ -331,11 +331,11 @@ function firstReveal(deck) {
 function removeStars() {
     let lis = stars.children;
 
-    if (getMoves() === 17) {
+    if (getMoves() === 21) {
         lis[2].children[0].classList.remove('fa-star')
         lis[2].children[0].classList.add('fa-star-o')
         estrelas = 2;
-    } else if (getMoves() === 40) {
+    } else if (getMoves() === 41) {
         lis[1].children[0].classList.remove('fa-star')
         lis[1].children[0].classList.add('fa-star-o')
         estrelas = 1;
